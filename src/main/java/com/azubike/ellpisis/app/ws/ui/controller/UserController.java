@@ -15,8 +15,10 @@ import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
+//http://localhost:8080/users
+
 @RestController
-@RequestMapping("/users") // http://localhost:8080/users
+@RequestMapping("/users")
 public class UserController {
 
 	@Autowired
