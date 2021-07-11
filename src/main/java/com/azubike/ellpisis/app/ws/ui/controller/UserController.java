@@ -16,7 +16,7 @@ import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
 @RestController
-@RequestMapping("/users") // http://localhost:8080//users
+@RequestMapping("/users") // http://localhost:8080/users
 public class UserController {
 
 	@Autowired
@@ -33,7 +33,7 @@ public class UserController {
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
 		UserDto createdUser = userService.createUser(userDto);
-		BeanUtils.copyProperties(userDto, returnedValue);
+		BeanUtils.copyProperties(createdUser, returnedValue);
 		return returnedValue;
 	}
 
