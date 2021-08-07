@@ -1,3 +1,6 @@
+/**
+ * This is used when an HTTP request is sent for users to sign in into our application
+ * */
 package com.azubike.ellpisis.app.ws.security;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	@Override
+	// this method is triggered on every HTTP request to sign in
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		try {
@@ -42,6 +46,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	@Override
+	// this is only triggered when attemptAuthentication is successful
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 		String userName = ((User) authResult.getPrincipal()).getUsername();
