@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +25,12 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@GetMapping
-	public String getUser() {
-		return "get user was called";
+	@GetMapping(path = "/{id}")
+	public UserRest getUser(@PathVariable String id) {
+		UserRest returnedValue = new UserRest();
+		UserDto user = userService.getUserById(id);
+		BeanUtils.copyProperties(returnedValue, user);
+		return returnedValue;
 	}
 
 	@PostMapping

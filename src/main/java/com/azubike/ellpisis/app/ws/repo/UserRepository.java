@@ -9,4 +9,7 @@ import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
 	UserEntity findByEmail(String email);
 
+	// using preset query methods
+	UserEntity findByUserId(String id);
+
 }
