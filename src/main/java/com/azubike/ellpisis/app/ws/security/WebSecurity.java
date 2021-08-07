@@ -29,8 +29,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
-				.permitAll().anyRequest().authenticated().and()
-				.addFilter(new AuthenticationFilter(authenticationManager()));
+				.permitAll().anyRequest().authenticated().and().addFilter(getAuthenticationFilter());
+	}
+
+	public AuthenticationFilter getAuthenticationFilter() throws Exception {
+		final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
+		// custom path for authentication
+		filter.setFilterProcessesUrl("/users/login");
+		return filter;
 	}
 
 }
