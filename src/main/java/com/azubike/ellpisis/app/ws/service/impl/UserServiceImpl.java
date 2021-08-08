@@ -10,11 +10,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.azubike.ellpisis.app.ws.exceptions.UserServiceException;
 import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
 import com.azubike.ellpisis.app.ws.repo.UserRepository;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
 import com.azubike.ellpisis.app.ws.shared.utils.Utils;
+import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -68,6 +70,19 @@ public class UserServiceImpl implements UserService {
 		UserDto returnedValue = new UserDto();
 		BeanUtils.copyProperties(userEntity, returnedValue);
 		return returnedValue;
+	}
+
+	@Override
+	public UserDto updateUser(UserDto userDto, String id) {
+		UserEntity userEntity = userRepository.findByUserId(id);
+		if (userEntity == null)
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
+		userEntity.setFirstName(userDto.getFirstName());
+		userEntity.setLastName(userDto.getLastName());
+		userRepository.save(userEntity);
+		UserDto updatedEntities = new UserDto();
+		BeanUtils.copyProperties(userEntity, updatedEntities);
+		return updatedEntities;
 	}
 
 }
