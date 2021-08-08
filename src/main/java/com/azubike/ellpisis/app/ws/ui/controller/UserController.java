@@ -1,5 +1,8 @@
 package com.azubike.ellpisis.app.ws.ui.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.azubike.ellpisis.app.ws.exceptions.UserServiceException;
@@ -17,6 +21,9 @@ import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
+import com.azubike.ellpisis.app.ws.ui.model.response.OperationStatusModel;
+import com.azubike.ellpisis.app.ws.ui.model.response.RequestOperationName;
+import com.azubike.ellpisis.app.ws.ui.model.response.RequestOperationStatus;
 import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
 //http://localhost:8080/users
@@ -24,7 +31,6 @@ import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
 	@Autowired
 	private UserService userService;
 
@@ -66,9 +72,27 @@ public class UserController {
 
 	}
 
-	@DeleteMapping
-	public String deleteUser() {
-		return "delete user was called";
+	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel deleteUser(@PathVariable String id) {
+		OperationStatusModel returnedValue = new OperationStatusModel();
+		userService.deleteUser(id);
+		returnedValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		returnedValue.setOperationName(RequestOperationName.DELETE.name());
+		return returnedValue;
+	}
+
+	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
+			@RequestParam(value = "limit", defaultValue = "25") int limit) {
+		List<UserRest> returnedValue = new ArrayList<>();
+		List<UserDto> users = userService.getUsers(page, limit);
+		for (UserDto user : users) {
+			UserRest userRest = new UserRest();
+			BeanUtils.copyProperties(user, userRest);
+			returnedValue.add(userRest);
+		}
+
+		return returnedValue;
 	}
 
 }
