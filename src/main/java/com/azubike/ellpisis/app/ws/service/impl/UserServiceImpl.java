@@ -34,8 +34,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto user) {
 
 		if (userRepository.findByEmail(user.getEmail()) != null)
-			throw new RuntimeException("Record Already Exists");
-
+			throw new UserServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessages());
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -59,7 +58,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto getUser(String email) {
 		UserEntity userEntity = userRepository.findByEmail(email);
 		if (userEntity == null)
-			throw new UsernameNotFoundException("user not found");
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
 		UserDto returnedValue = new UserDto();
 		BeanUtils.copyProperties(userEntity, returnedValue);
 		return returnedValue;
