@@ -1,10 +1,12 @@
-package com.azubike.ellpisis.app.ws.ui.model.request;
+package com.azubike.ellpisis.app.ws.shared.dto;
 
-public class AddressRequestModel {
+public class AddressDto {
+	private long id;
 	private String city;
 	private String country;
 	private String streetName;
 	private String type;
+	private String addressId;
 	private String postalCode;
 
 	public String getType() {
@@ -13,6 +15,24 @@ public class AddressRequestModel {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getAddressId() {
+		return addressId;
+	}
+
+	public void setAddressId(String addressId) {
+		this.addressId = addressId;
+	}
+
+	private UserDto userDetails;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getCity() {
@@ -45,6 +65,14 @@ public class AddressRequestModel {
 
 	public void setPostalCode(String postalCode) {
 		this.postalCode = postalCode;
+	}
+
+	public UserDto getUserDetails() {
+		return userDetails;
+	}
+
+	public void setUserDetails(UserDto userDetails) {
+		this.userDetails = userDetails;
 	}
 
 }
