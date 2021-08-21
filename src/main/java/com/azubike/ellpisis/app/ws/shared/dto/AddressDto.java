@@ -8,6 +8,7 @@ public class AddressDto {
 	private String type;
 	private String addressId;
 	private String postalCode;
+	private UserDto userDetails;
 
 	public String getType() {
 		return type;
@@ -24,8 +25,6 @@ public class AddressDto {
 	public void setAddressId(String addressId) {
 		this.addressId = addressId;
 	}
-
-	private UserDto userDetails;
 
 	public long getId() {
 		return id;

@@ -10,10 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
-
 @Entity(name = "address")
-public class Address implements Serializable {
+public class AddressEntity implements Serializable {
 	private static final long serialVersionUID = 8681991648498082190L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +36,7 @@ public class Address implements Serializable {
 	private String type;
 	@ManyToOne
 	@JoinColumn(name = "users_id")
-	private UserDto userDetails;
+	private UserEntity userDetails;
 
 	public long getId() {
 		return id;
@@ -96,11 +94,11 @@ public class Address implements Serializable {
 		this.type = type;
 	}
 
-	public UserDto getUserDetails() {
+	public UserEntity getUserDetails() {
 		return userDetails;
 	}
 
-	public void setUserDetails(UserDto userDetails) {
+	public void setUserDetails(UserEntity userDetails) {
 		this.userDetails = userDetails;
 	}
 

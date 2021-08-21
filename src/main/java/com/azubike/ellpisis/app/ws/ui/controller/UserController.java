@@ -1,9 +1,11 @@
 package com.azubike.ellpisis.app.ws.ui.controller;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.azubike.ellpisis.app.ws.exceptions.UserServiceException;
+import com.azubike.ellpisis.app.ws.service.AddressService;
 import com.azubike.ellpisis.app.ws.service.UserService;
+import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.azubike.ellpisis.app.ws.ui.model.response.AddressRest;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
 import com.azubike.ellpisis.app.ws.ui.model.response.OperationStatusModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.RequestOperationName;
@@ -35,11 +40,14 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private AddressService addressService;
+
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest getUser(@PathVariable String id) {
-		UserRest returnedValue = new UserRest();
 		UserDto user = userService.getUserById(id);
-		BeanUtils.copyProperties(user, returnedValue);
+		ModelMapper modelMapper = new ModelMapper();
+		UserRest returnedValue = modelMapper.map(user, UserRest.class);
 		return returnedValue;
 	}
 
@@ -60,14 +68,14 @@ public class UserController {
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
 	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
-		UserRest returnedValue = new UserRest();
-		UserDto userDto = new UserDto();
+
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessages());
 		}
-		BeanUtils.copyProperties(userDetails, userDto);
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 		UserDto updatedUser = userService.updateUser(userDto, id);
-		BeanUtils.copyProperties(updatedUser, returnedValue);
+		UserRest returnedValue = modelMapper.map(updatedUser, UserRest.class);
 		return returnedValue;
 
 	}
@@ -93,6 +101,21 @@ public class UserController {
 		}
 
 		return returnedValue;
+	}
+
+	// http://localhost:8080/mobile-app-ws/users/:id/addresses
+	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
+	public List<AddressRest> getUserAddresses(@PathVariable String id) {
+		List<AddressRest> returnedAddresses = new ArrayList<>();
+		List<AddressDto> addressesDto = addressService.getAddresses(id);
+		if (addressesDto != null && !addressesDto.isEmpty()) {
+			Type listType = new TypeToken<List<AddressRest>>() {
+			}.getType();
+			returnedAddresses = new ModelMapper().map(addressesDto, listType);
+		}
+
+		return returnedAddresses;
 	}
 
 }

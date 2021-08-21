@@ -13,6 +13,10 @@ public class Utils {
 		return generateRandomString(length);
 	}
 
+	public String generateRadomAddressId(int length) {
+		return generateRandomString(length);
+	}
+
 	private String generateRandomString(int length) {
 		StringBuilder output = new StringBuilder(length);
 		for (int i = 0; i < length; i++) {

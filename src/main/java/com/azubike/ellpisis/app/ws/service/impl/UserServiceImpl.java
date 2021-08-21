@@ -3,6 +3,7 @@ package com.azubike.ellpisis.app.ws.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import com.azubike.ellpisis.app.ws.exceptions.UserServiceException;
 import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
 import com.azubike.ellpisis.app.ws.repo.UserRepository;
 import com.azubike.ellpisis.app.ws.service.UserService;
+import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
 import com.azubike.ellpisis.app.ws.shared.utils.Utils;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
@@ -32,16 +34,26 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto createUser(UserDto user) {
-
 		if (userRepository.findByEmail(user.getEmail()) != null)
 			throw new UserServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessages());
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
+		// generate random addressId for each addresses
+
+		for (int i = 0; i < user.getAddresses().size(); i++) {
+			// get the address from the userDto object
+			AddressDto address = user.getAddresses().get(i);
+			// set the addressId of the returned address to a random string
+			address.setAddressId(utils.generateRadomAddressId(30));
+			// set the userDetails of the returned address to the userDto
+			address.setUserDetails(user);
+			// set the returned address back to the userDto
+			user.getAddresses().set(i, address);
+		}
+		ModelMapper modelMapper = new ModelMapper();
+		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userEntity.setUserId(utils.generateRandomUserId(30));
 		UserEntity savedUserDetails = userRepository.save(userEntity);
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(savedUserDetails, userDto);
+		UserDto userDto = modelMapper.map(savedUserDetails, UserDto.class);
 		return userDto;
 	}
 
@@ -69,8 +81,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByUserId(userId);
 		if (userEntity == null)
 			throw new UsernameNotFoundException("user not found");
-		UserDto returnedValue = new UserDto();
-		BeanUtils.copyProperties(userEntity, returnedValue);
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto returnedValue = modelMapper.map(userEntity, UserDto.class);
 		return returnedValue;
 	}
 
