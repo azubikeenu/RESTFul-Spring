@@ -11,7 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,16 +49,16 @@ public class UserController {
 	private AddressService addressService;
 
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest getUser(@PathVariable String id) {
+	public ResponseEntity<UserRest> getUser(@PathVariable String id) {
 		UserDto user = userService.getUserById(id);
 		ModelMapper modelMapper = new ModelMapper();
 		UserRest returnedValue = modelMapper.map(user, UserRest.class);
-		return returnedValue;
+		return ResponseEntity.status(HttpStatus.OK).body(returnedValue);
 	}
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+	public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessages());
 		}
@@ -64,13 +66,14 @@ public class UserController {
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 		UserDto createdUser = userService.createUser(userDto);
 		UserRest returnedValue = modelMapper.map(createdUser, UserRest.class);
-		return returnedValue;
+		return ResponseEntity.status(HttpStatus.OK).body(returnedValue);
 	}
 
 	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
-	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
+	public ResponseEntity<UserRest> updateUser(@PathVariable String id,
+			@RequestBody UserDetailsRequestModel userDetails) {
 
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessages());
@@ -79,7 +82,7 @@ public class UserController {
 		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 		UserDto updatedUser = userService.updateUser(userDto, id);
 		UserRest returnedValue = modelMapper.map(updatedUser, UserRest.class);
-		return returnedValue;
+		return ResponseEntity.status(HttpStatus.OK).body(returnedValue);
 
 	}
 
@@ -107,8 +110,8 @@ public class UserController {
 
 	// http://localhost:8080/mobile-app-ws/users/:id/addresses
 	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public List<AddressRest> getUserAddresses(@PathVariable String id) {
+			MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
+	public ResponseEntity<List<AddressRest>> getUserAddresses(@PathVariable String id) {
 		List<AddressRest> addressesListRestModel = new ArrayList<>();
 		List<AddressDto> addressesDto = addressService.getAddresses(id);
 		if (addressesDto != null && !addressesDto.isEmpty()) {
@@ -123,13 +126,13 @@ public class UserController {
 			address.add(addressLink, userLink);
 		}
 
-		return addressesListRestModel;
+		return ResponseEntity.status(HttpStatus.OK).body(addressesListRestModel);
 	}
 
 	// http://localhost:8080/mobile-app-ws/users/:id/addresses/:addressId
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public AddressRest getUserAddress(@PathVariable String addressId, @PathVariable String userId) {
+			MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
+	public ResponseEntity<AddressRest> getUserAddress(@PathVariable String addressId, @PathVariable String userId) {
 		AddressDto addressesDto = addressService.getAddress(addressId);
 		Link addressLink = linkTo(methodOn(UserController.class).getUserAddress(addressId, userId)).withSelfRel();
 		Link addressesLink = linkTo(methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
@@ -138,7 +141,7 @@ public class UserController {
 		addressRest.add(addressLink);
 		addressRest.add(addressesLink);
 		addressRest.add(userLink);
-		return addressRest;
+		return ResponseEntity.status(HttpStatus.OK).body(addressRest);
 	}
 
 }
