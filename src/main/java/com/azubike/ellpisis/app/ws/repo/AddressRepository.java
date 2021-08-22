@@ -12,4 +12,6 @@ import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
 public interface AddressRepository extends JpaRepository<AddressEntity, Long> {
 	List<AddressEntity> findAllByUserDetails(UserEntity userEntity);
 
+	AddressEntity findByAddressId(String addressId);
+
 }

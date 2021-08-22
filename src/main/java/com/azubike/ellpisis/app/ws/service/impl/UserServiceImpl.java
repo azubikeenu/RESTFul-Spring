@@ -1,9 +1,11 @@
 package com.azubike.ellpisis.app.ws.service.impl;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -113,10 +115,10 @@ public class UserServiceImpl implements UserService {
 		List<UserDto> returnedValue = new ArrayList<>();
 		Pageable pageable = PageRequest.of(page - 1, limit);
 		List<UserEntity> users = userRepository.findAll(pageable).getContent();
-		for (UserEntity user : users) {
-			UserDto userDto = new UserDto();
-			BeanUtils.copyProperties(user, userDto);
-			returnedValue.add(userDto);
+		if (users != null && !users.isEmpty()) {
+			Type listType = new TypeToken<List<UserDto>>() {
+			}.getType();
+			returnedValue = new ModelMapper().map(users, listType);
 		}
 		return returnedValue;
 	}

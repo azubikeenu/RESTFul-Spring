@@ -1,13 +1,15 @@
 package com.azubike.ellpisis.app.ws.ui.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,12 +96,11 @@ public class UserController {
 			@RequestParam(value = "limit", defaultValue = "25") int limit) {
 		List<UserRest> returnedValue = new ArrayList<>();
 		List<UserDto> users = userService.getUsers(page, limit);
-		for (UserDto user : users) {
-			UserRest userRest = new UserRest();
-			BeanUtils.copyProperties(user, userRest);
-			returnedValue.add(userRest);
+		if (users != null && !users.isEmpty()) {
+			Type listType = new TypeToken<List<UserRest>>() {
+			}.getType();
+			returnedValue = new ModelMapper().map(users, listType);
 		}
-
 		return returnedValue;
 	}
 
@@ -116,6 +117,21 @@ public class UserController {
 		}
 
 		return returnedAddresses;
+	}
+
+	// http://localhost:8080/mobile-app-ws/users/:id/addresses/:addressId
+	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
+	public AddressRest getUserAddress(@PathVariable String addressId, @PathVariable String userId) {
+		AddressDto addressesDto = addressService.getAddress(addressId);
+		Link addressLink = linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
+		Link addressesLink = linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
+		Link userLink = linkTo(UserController.class).slash(userId).withRel("user");
+		AddressRest addressRest = new ModelMapper().map(addressesDto, AddressRest.class);
+		addressRest.add(addressLink);
+		addressRest.add(addressesLink);
+		addressRest.add(userLink);
+		return addressRest;
 	}
 
 }
