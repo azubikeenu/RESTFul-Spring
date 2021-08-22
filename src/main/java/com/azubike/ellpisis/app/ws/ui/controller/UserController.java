@@ -1,6 +1,7 @@
 package com.azubike.ellpisis.app.ws.ui.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -108,15 +109,21 @@ public class UserController {
 	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
 	public List<AddressRest> getUserAddresses(@PathVariable String id) {
-		List<AddressRest> returnedAddresses = new ArrayList<>();
+		List<AddressRest> addressesListRestModel = new ArrayList<>();
 		List<AddressDto> addressesDto = addressService.getAddresses(id);
 		if (addressesDto != null && !addressesDto.isEmpty()) {
 			Type listType = new TypeToken<List<AddressRest>>() {
 			}.getType();
-			returnedAddresses = new ModelMapper().map(addressesDto, listType);
+			addressesListRestModel = new ModelMapper().map(addressesDto, listType);
+		}
+		for (AddressRest address : addressesListRestModel) {
+			Link addressLink = linkTo(methodOn(UserController.class).getUserAddress(address.getAddressId(), id))
+					.withSelfRel();
+			Link userLink = linkTo(methodOn(UserController.class).getUser(id)).withRel("user");
+			address.add(addressLink, userLink);
 		}
 
-		return returnedAddresses;
+		return addressesListRestModel;
 	}
 
 	// http://localhost:8080/mobile-app-ws/users/:id/addresses/:addressId
@@ -124,9 +131,9 @@ public class UserController {
 			MediaType.APPLICATION_JSON_VALUE })
 	public AddressRest getUserAddress(@PathVariable String addressId, @PathVariable String userId) {
 		AddressDto addressesDto = addressService.getAddress(addressId);
-		Link addressLink = linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
-		Link addressesLink = linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
-		Link userLink = linkTo(UserController.class).slash(userId).withRel("user");
+		Link addressLink = linkTo(methodOn(UserController.class).getUserAddress(addressId, userId)).withSelfRel();
+		Link addressesLink = linkTo(methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
+		Link userLink = linkTo(methodOn(UserController.class).getUser(userId)).withRel("user");
 		AddressRest addressRest = new ModelMapper().map(addressesDto, AddressRest.class);
 		addressRest.add(addressLink);
 		addressRest.add(addressesLink);
