@@ -1,8 +1,15 @@
 package com.azubike.ellpisis.app.ws.shared.utils;
 
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;
+
+import com.azubike.ellpisis.app.ws.security.SecurityConstants;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class Utils {
@@ -23,6 +30,20 @@ public class Utils {
 			output.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
 		}
 		return output.toString();
+	}
+
+	public boolean hasTokenExpired(String token) {
+		Claims claims = Jwts.parser().setSigningKey(SecurityConstants.getTokenSecret()).parseClaimsJws(token).getBody();
+		Date tokenExpirationDate = claims.getExpiration();
+		Date todaysDate = new Date();
+		return tokenExpirationDate.before(todaysDate);
+	}
+
+	public String generateEmailVerificationToken(String userId) {
+		String token = Jwts.builder().setSubject(userId)
+				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+				.signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET).compact();
+		return token;
 	}
 
 }

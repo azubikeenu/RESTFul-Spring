@@ -14,6 +14,8 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +31,8 @@ import com.azubike.ellpisis.app.ws.service.AddressService;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
+import com.azubike.ellpisis.app.ws.shared.utils.EmailConfiguration;
+import com.azubike.ellpisis.app.ws.shared.utils.FeedBack;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.AddressRest;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
@@ -44,6 +48,9 @@ import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 public class UserController {
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private EmailConfiguration emailConfig;
 
 	@Autowired
 	private AddressService addressService;
@@ -142,6 +149,46 @@ public class UserController {
 		addressRest.add(addressesLink);
 		addressRest.add(userLink);
 		return ResponseEntity.status(HttpStatus.OK).body(addressRest);
+	}
+
+	@GetMapping(path = "/email-verification", produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
+	public OperationStatusModel verifyEmailToken(@RequestParam(value = "token") String token) {
+		OperationStatusModel verifyEmail = new OperationStatusModel();
+		verifyEmail.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+
+		boolean isVerified = userService.verifyEmailToken(token);
+		if (isVerified)
+			verifyEmail.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		else
+			verifyEmail.setOperationResult(RequestOperationStatus.ERROR.name());
+		return verifyEmail;
+
+	}
+
+	@PostMapping(path = "/send-email")
+	public void sendEmail(@RequestBody FeedBack feedback) {
+		// Create a mail sender
+
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		mailSender.setHost(emailConfig.getHost());
+		mailSender.setPort(emailConfig.getPort());
+		mailSender.setUsername(emailConfig.getUserName());
+		mailSender.setPassword(emailConfig.getPassword());
+		// create a mail instance
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setFrom(feedback.getEmail());
+		mailMessage.setTo("enuazubike88@gmail.com");
+		mailMessage.setSubject("New FeedBack from " + feedback.getName());
+		mailMessage.setText(feedback.getFeedback());
+
+		// sendMail
+		try {
+			mailSender.send(mailMessage);
+		} catch (Exception ex) {
+			System.out.println("Could not send Message " + ex);
+		}
+
 	}
 
 }

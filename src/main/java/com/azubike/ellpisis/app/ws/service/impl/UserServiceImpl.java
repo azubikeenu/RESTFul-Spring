@@ -54,6 +54,9 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userEntity.setUserId(utils.generateRandomUserId(30));
+		// set emailVerificationToken
+		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserId()));
+		userEntity.setEmailVerificationStatus(false);
 		UserEntity savedUserDetails = userRepository.save(userEntity);
 		UserDto userDto = modelMapper.map(savedUserDetails, UserDto.class);
 		return userDto;
@@ -65,7 +68,10 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByEmail(email);
 		if (userEntity == null)
 			throw new UsernameNotFoundException("user not found");
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
+				userEntity.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
+		// return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new
+		// ArrayList<>());
 	}
 
 	@Override
@@ -121,6 +127,21 @@ public class UserServiceImpl implements UserService {
 			returnedValue = new ModelMapper().map(users, listType);
 		}
 		return returnedValue;
+	}
+
+	@Override
+	public boolean verifyEmailToken(String token) {
+		UserEntity userEntity = userRepository.findUserByEmailVerificationToken(token);
+		if (userEntity != null) {
+			boolean hasTokenExpired = utils.hasTokenExpired(token);
+			if (!hasTokenExpired) {
+				userEntity.setEmailVerificationToken(null);
+				userEntity.setEmailVerificationStatus(Boolean.TRUE);
+				userRepository.save(userEntity);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
