@@ -22,6 +22,7 @@ import com.azubike.ellpisis.app.ws.repo.UserRepository;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
+import com.azubike.ellpisis.app.ws.shared.utils.EmailService;
 import com.azubike.ellpisis.app.ws.shared.utils.Utils;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
 
@@ -33,6 +34,8 @@ public class UserServiceImpl implements UserService {
 	private Utils utils;
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	@Autowired
+	private EmailService emailService;
 
 	@Override
 	public UserDto createUser(UserDto user) {
@@ -58,7 +61,15 @@ public class UserServiceImpl implements UserService {
 		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserId()));
 		userEntity.setEmailVerificationStatus(false);
 		UserEntity savedUserDetails = userRepository.save(userEntity);
+		// send email to user
+
 		UserDto userDto = modelMapper.map(savedUserDetails, UserDto.class);
+		try {
+			emailService.verifyEmail(userDto);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return userDto;
 	}
 
