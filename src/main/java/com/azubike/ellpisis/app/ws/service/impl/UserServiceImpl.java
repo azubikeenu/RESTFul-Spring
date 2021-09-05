@@ -17,7 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.azubike.ellpisis.app.ws.exceptions.UserServiceException;
+import com.azubike.ellpisis.app.ws.io.entity.PasswordRestTokenEntity;
 import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
+import com.azubike.ellpisis.app.ws.repo.PasswordResetTokenRepository;
 import com.azubike.ellpisis.app.ws.repo.UserRepository;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
@@ -36,6 +38,9 @@ public class UserServiceImpl implements UserService {
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private PasswordResetTokenRepository passwordResetTokenRepository;
 
 	@Override
 	public UserDto createUser(UserDto user) {
@@ -61,10 +66,9 @@ public class UserServiceImpl implements UserService {
 		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(userEntity.getUserId()));
 		userEntity.setEmailVerificationStatus(false);
 		UserEntity savedUserDetails = userRepository.save(userEntity);
-		// send email to user
-
 		UserDto userDto = modelMapper.map(savedUserDetails, UserDto.class);
 		try {
+			// send email to user
 			emailService.verifyEmail(userDto);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -81,6 +85,7 @@ public class UserServiceImpl implements UserService {
 			throw new UsernameNotFoundException("user not found");
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
 				userEntity.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
+
 		// return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new
 		// ArrayList<>());
 	}
@@ -153,6 +158,28 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean requestPasswordReset(String email) {
+		UserEntity user = userRepository.findByEmail(email);
+		boolean returnedValue = false;
+		if (user == null) {
+			return returnedValue;
+		}
+		String token = utils.generatePasswordResetToken(user.getUserId());
+		PasswordRestTokenEntity passwordResetTokenEntity = new PasswordRestTokenEntity();
+		passwordResetTokenEntity.setToken(token);
+		passwordResetTokenEntity.setUserDetails(user);
+		passwordResetTokenRepository.save(passwordResetTokenEntity);
+		try {
+			returnedValue = emailService.sendPasswordRequestEmail(user.getFirstName(), user.getEmail(), token);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return returnedValue;
 	}
 
 }

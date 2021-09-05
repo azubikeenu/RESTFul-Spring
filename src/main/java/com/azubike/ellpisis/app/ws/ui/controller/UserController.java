@@ -30,7 +30,7 @@ import com.azubike.ellpisis.app.ws.service.AddressService;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
-import com.azubike.ellpisis.app.ws.shared.utils.EmailConfiguration;
+import com.azubike.ellpisis.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.AddressRest;
 import com.azubike.ellpisis.app.ws.ui.model.response.ErrorMessages;
@@ -46,9 +46,6 @@ import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 public class UserController {
 	@Autowired
 	private UserService userService;
-
-	@Autowired
-	private EmailConfiguration emailConfig;
 
 	@Autowired
 	private AddressService addressService;
@@ -160,6 +157,21 @@ public class UserController {
 		else
 			verifyEmail.setOperationResult(RequestOperationStatus.ERROR.name());
 		return verifyEmail;
+
+	}
+
+	@PostMapping(path = "/password-reset-request", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@CrossOrigin(origins = "*")
+	public OperationStatusModel passwordResetRequest(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
+		OperationStatusModel operationStatusModel = new OperationStatusModel();
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		operationStatusModel.setOperationName(RequestOperationName.SEND_PASSWORD_RESET_TOKEN.name());
+		if (!operationResult) {
+			operationStatusModel.setOperationResult(RequestOperationStatus.ERROR.name());
+		} else {
+			operationStatusModel.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		}
+		return operationStatusModel;
 
 	}
 
