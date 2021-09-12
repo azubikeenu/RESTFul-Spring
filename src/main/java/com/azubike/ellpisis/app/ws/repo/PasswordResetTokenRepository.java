@@ -8,4 +8,6 @@ import com.azubike.ellpisis.app.ws.io.entity.PasswordRestTokenEntity;
 @Repository
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordRestTokenEntity, Long> {
 
+	PasswordRestTokenEntity findByToken(String token);
+
 }

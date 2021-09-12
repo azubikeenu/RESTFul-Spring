@@ -2,7 +2,6 @@ package com.azubike.ellpisis.app.ws.io.entity;
 
 import java.io.Serializable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,7 +15,7 @@ public class PasswordRestTokenEntity implements Serializable {
 	@GeneratedValue
 	private long id;
 	private String token;
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne
 	@JoinColumn(name = "user_id")
 	private UserEntity userDetails;
 

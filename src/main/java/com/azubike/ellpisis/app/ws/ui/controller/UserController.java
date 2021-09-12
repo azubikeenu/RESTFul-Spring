@@ -30,6 +30,7 @@ import com.azubike.ellpisis.app.ws.service.AddressService;
 import com.azubike.ellpisis.app.ws.service.UserService;
 import com.azubike.ellpisis.app.ws.shared.dto.AddressDto;
 import com.azubike.ellpisis.app.ws.shared.dto.UserDto;
+import com.azubike.ellpisis.app.ws.ui.model.request.PasswordResetModel;
 import com.azubike.ellpisis.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.azubike.ellpisis.app.ws.ui.model.response.AddressRest;
@@ -43,6 +44,7 @@ import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "*")
 public class UserController {
 	@Autowired
 	private UserService userService;
@@ -161,10 +163,26 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/password-reset-request", produces = { MediaType.APPLICATION_JSON_VALUE })
-	@CrossOrigin(origins = "*")
 	public OperationStatusModel passwordResetRequest(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
 		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		operationStatusModel.setOperationName(RequestOperationName.SEND_PASSWORD_RESET_TOKEN.name());
+		if (!operationResult) {
+			operationStatusModel.setOperationResult(RequestOperationStatus.ERROR.name());
+		} else {
+			operationStatusModel.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		}
+		return operationStatusModel;
+
+	}
+
+	// http://localhost:8080/mobile-app-ws/users/password-reset
+
+	@PostMapping(path = "/password-reset", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel passwordReset(@RequestBody PasswordResetModel passwordResetModel) {
+		OperationStatusModel operationStatusModel = new OperationStatusModel();
+		boolean operationResult = userService.resetPassword(passwordResetModel.getPassword(),
+				passwordResetModel.getToken());
 		operationStatusModel.setOperationName(RequestOperationName.SEND_PASSWORD_RESET_TOKEN.name());
 		if (!operationResult) {
 			operationStatusModel.setOperationResult(RequestOperationStatus.ERROR.name());

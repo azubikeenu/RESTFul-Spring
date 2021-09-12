@@ -33,7 +33,7 @@ public class EmailService {
 	final String PASSWORD_RESET_HTML_BODY = "<h2>A request to reset your password</h2> " + "<p>Hi $firstName</p> "
 			+ "<p>Someone has requested to change your password if you are not the one please kindly ignore else :</p> "
 			+ "\n Click on the following link "
-			+ "\n<a href='http://localhost:8080/mobile-app-ws/users/email-verification?token=${tokenValue}'>click to reset your password</a>"
+			+ "\n<a href='http://localhost:8083/verification-service/password-reset.html?token=${tokenValue}'>click to reset your password</a>"
 			+ "\n Thanks once again ";
 
 	public void verifyEmail(UserDto userDto) throws Exception {

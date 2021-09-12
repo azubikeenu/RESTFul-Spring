@@ -81,8 +81,10 @@ public class UserServiceImpl implements UserService {
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		// load users from the database using username as email and password
 		UserEntity userEntity = userRepository.findByEmail(email);
-		if (userEntity == null)
+		if (userEntity == null) {
 			throw new UsernameNotFoundException("user not found");
+		}
+
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
 				userEntity.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
 
@@ -180,6 +182,31 @@ public class UserServiceImpl implements UserService {
 		}
 
 		return returnedValue;
+	}
+
+	@Override
+	public boolean resetPassword(String password, String token) {
+		boolean returnedValue = false;
+		boolean hasExpired = utils.hasTokenExpired(token);
+		if (hasExpired)
+			return returnedValue;
+		// get passwordRestEntity from token
+		PasswordRestTokenEntity passwordRestTokenEntity = passwordResetTokenRepository.findByToken(token);
+		if (passwordRestTokenEntity == null)
+			return returnedValue;
+
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+		UserEntity userEntity = passwordRestTokenEntity.getUserDetails();
+		userEntity.setEncryptedPassword(encodedPassword);
+		// persist in the database
+		UserEntity savedUser = userRepository.save(userEntity);
+		// verify if encodedPassword equals user encrypted password
+		if (savedUser != null && savedUser.getEncryptedPassword().equalsIgnoreCase(encodedPassword))
+			returnedValue = true;
+		// remove passwordVerification token from db
+		passwordResetTokenRepository.delete(passwordRestTokenEntity);
+		return returnedValue;
+
 	}
 
 }
