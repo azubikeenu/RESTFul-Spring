@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import com.azubike.ellpisis.app.ws.security.SecurityConstants;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 
 @Component
 public class Utils {
@@ -33,10 +35,18 @@ public class Utils {
 	}
 
 	public boolean hasTokenExpired(String token) {
-		Claims claims = Jwts.parser().setSigningKey(SecurityConstants.getTokenSecret()).parseClaimsJws(token).getBody();
-		Date tokenExpirationDate = claims.getExpiration();
-		Date todaysDate = new Date();
-		return tokenExpirationDate.before(todaysDate);
+		boolean returnedValue = true;
+		try {
+			Claims claims = Jwts.parser().setSigningKey(SecurityConstants.getTokenSecret()).parseClaimsJws(token)
+					.getBody();
+			Date tokenExpirationDate = claims.getExpiration();
+			Date todaysDate = new Date();
+			returnedValue = tokenExpirationDate.before(todaysDate);
+		} catch (ExpiredJwtException | SignatureException ex) {
+			returnedValue = true;
+		}
+		return returnedValue;
+
 	}
 
 	public String generateEmailVerificationToken(String userId) {
