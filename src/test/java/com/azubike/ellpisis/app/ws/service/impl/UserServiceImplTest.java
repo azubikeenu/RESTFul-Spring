@@ -44,6 +44,7 @@ class UserServiceImplTest {
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	@Mock
 	EmailService emailService;
+
 	String userId = "xxssyyusuuwiei";
 	String encryptedPassword = "xxxxwuuurhhrhhuuxbbgdg_eyrnnr";
 	String emailVerificationToken = "xxxeuueuuriixnnxmeuue";
@@ -71,7 +72,7 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	void testGetUsers_UsernameNotFoundException() {
+	void testGetUser_UsernameNotFoundException() {
 		when(userRepository.findByEmail(anyString())).thenReturn(null);
 		assertThrows(UserServiceException.class, () -> {
 			userServiceImpl.getUser(userEntity.getEmail());
@@ -102,6 +103,20 @@ class UserServiceImplTest {
 		verify(utils, times(returnedUser.getAddresses().size())).generateRadomAddressId(30);
 		verify(bCryptPasswordEncoder, times(1)).encode("12345");
 		verify(userRepository, times(1)).save(any(UserEntity.class));
+	}
+
+	@Test
+	final void createUser_UserServiceException() {
+		when(userRepository.findByEmail(anyString())).thenReturn(userEntity);
+		UserDto userDto = new UserDto();
+		userDto.setAddresses(getAddressDto());
+		userDto.setFirstName("Richard");
+		userDto.setLastName("Enu");
+		userDto.setEmail("enuazubike88@gmail.com");
+		userDto.setPassword("12345");
+		assertThrows(UserServiceException.class, () -> {
+			userServiceImpl.createUser(userDto);
+		});
 	}
 
 	private List<AddressDto> getAddressDto() {
