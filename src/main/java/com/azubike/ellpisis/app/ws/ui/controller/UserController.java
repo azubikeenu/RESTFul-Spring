@@ -55,9 +55,7 @@ public class UserController {
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> getUser(@PathVariable String id) {
 		UserDto user = userService.getUserById(id);
-		ModelMapper modelMapper = new ModelMapper();
-		UserRest returnedValue = modelMapper.map(user, UserRest.class);
-		return ResponseEntity.status(HttpStatus.OK).body(returnedValue);
+		return ResponseEntity.status(HttpStatus.OK).body(new ModelMapper().map(user, UserRest.class));
 	}
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
