@@ -116,13 +116,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUser(UserDto userDto, String id) {
 		UserEntity userEntity = userRepository.findByUserId(id);
+		UserDto updatedEntities = new UserDto();
 		if (userEntity == null)
 			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
 		userEntity.setFirstName(userDto.getFirstName());
 		userEntity.setLastName(userDto.getLastName());
 		userRepository.save(userEntity);
-		UserDto updatedEntities = new UserDto();
-		BeanUtils.copyProperties(userEntity, updatedEntities);
+		updatedEntities = new ModelMapper().map(userEntity, UserDto.class);
 		return updatedEntities;
 	}
 

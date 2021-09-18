@@ -133,11 +133,13 @@ class UserServiceImplTest {
 		addressOne.setCity("Lagos");
 		addressOne.setCountry("Nigeria");
 		addressOne.setStreetName("Festac");
+		addressOne.setPostalCode("12355");
 		AddressDto addressTwo = new AddressDto();
 		addressTwo.setType("billing");
 		addressTwo.setCity("Lagos");
 		addressTwo.setCountry("Nigeria");
 		addressTwo.setStreetName("Festac");
+		addressTwo.setPostalCode("2345666");
 		List<AddressDto> addresses = Arrays.asList(addressOne, addressTwo);
 		return addresses;
 
