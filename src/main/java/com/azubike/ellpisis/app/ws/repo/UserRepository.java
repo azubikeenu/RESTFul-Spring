@@ -7,6 +7,7 @@ import com.azubike.ellpisis.app.ws.io.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
 	UserEntity findByEmail(String email);
 
 	// using preset query methods

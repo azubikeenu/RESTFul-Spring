@@ -84,21 +84,23 @@ public class UserServiceImpl implements UserService {
 		if (userEntity == null) {
 			throw new UsernameNotFoundException("user not found");
 		}
-
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
 				userEntity.getEmailVerificationStatus(), true, true, true, new ArrayList<>());
 
-		// return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new
-		// ArrayList<>());
+//		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
 	}
 
 	@Override
 	public UserDto getUser(String email) {
 		UserEntity userEntity = userRepository.findByEmail(email);
+
 		if (userEntity == null)
 			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
-		return new ModelMapper().map(userEntity, UserDto.class);
 
+		UserDto returnValue = new UserDto();
+		BeanUtils.copyProperties(userEntity, returnValue);
+
+		return returnValue;
 	}
 
 	@Override
