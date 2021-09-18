@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -53,6 +54,7 @@ class UserServiceImplTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.openMocks(this);
+		// Create an instance of UserEntity Stub for each test case
 		userEntity = new UserEntity();
 		userEntity.setId(1L);
 		userEntity.setUserId(userId);
@@ -69,6 +71,7 @@ class UserServiceImplTest {
 		UserDto userDto = userServiceImpl.getUser(userEntity.getEmail());
 		assertNotNull(userDto);
 		assertEquals("Richard", userDto.getFirstName());
+		assertEquals("Enu", userDto.getLastName());
 	}
 
 	@Test
@@ -77,16 +80,20 @@ class UserServiceImplTest {
 		assertThrows(UserServiceException.class, () -> {
 			userServiceImpl.getUser(userEntity.getEmail());
 		});
+
 	}
 
 	@Test
-	final void createUser() {
+	final void createUser() throws Exception {
 		when(userRepository.findByEmail(anyString())).thenReturn(null);
 		when(utils.generateRadomAddressId(anyInt())).thenReturn("xsueuuiriieiieioqoooeooroux");
 		when(utils.generateRandomUserId(anyInt())).thenReturn(userId);
 		when(utils.generateEmailVerificationToken(anyString())).thenReturn(emailVerificationToken);
 		when(bCryptPasswordEncoder.encode(anyString())).thenReturn(encryptedPassword);
 		when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+		Mockito.doNothing().when(emailService).verifyEmail(any(UserDto.class));
+
+		// stub the argument
 		UserDto userDto = new UserDto();
 		userDto.setAddresses(getAddressDto());
 		userDto.setFirstName("Richard");
@@ -94,6 +101,7 @@ class UserServiceImplTest {
 		userDto.setEmail("enuazubike88@gmail.com");
 		userDto.setPassword("12345");
 		UserDto returnedUser = userServiceImpl.createUser(userDto);
+
 		assertNotNull(returnedUser);
 		assertEquals(userEntity.getFirstName(), returnedUser.getFirstName());
 		assertEquals(userEntity.getLastName(), returnedUser.getLastName());
