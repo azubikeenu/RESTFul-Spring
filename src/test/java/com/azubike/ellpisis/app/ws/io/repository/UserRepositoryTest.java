@@ -53,12 +53,19 @@ class UserRepositoryTest {
 	}
 
 	@Test
-
 	void findUserByFirstName() {
 		List<UserEntity> userEntities = userRepository.findUserByFirstName("Richard");
 		assertNotNull(userEntities);
 		assertTrue(userEntities.size() == 1);
 		assertEquals("Richard", userEntities.get(0).getFirstName());
+	}
+
+	@Test
+	void findUserByLastName() {
+		List<UserEntity> userEntities = userRepository.findUserByLastName("Enu");
+		assertNotNull(userEntities);
+		assertTrue(userEntities.size() == 1);
+		assertEquals("Enu", userEntities.get(0).getLastName());
 	}
 
 	public void createRecords() {
