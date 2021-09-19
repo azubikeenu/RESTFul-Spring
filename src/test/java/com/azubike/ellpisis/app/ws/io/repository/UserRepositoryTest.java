@@ -1,5 +1,6 @@
 package com.azubike.ellpisis.app.ws.io.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,30 +33,12 @@ class UserRepositoryTest {
 	String encryptedPassword = "xxxxwuuurhhrhhuuxbbgdg_eyrnnr";
 	String emailVerificationToken = "xxxeuueuuriixnnxmeuue";
 	String addressId = "hdhhhhheuxuuexkkee";
+	static boolean recordsCreated = false;
 
 	@BeforeEach
 	void setUp() throws Exception {
-
-		// Create an instance of UserEntity Stub for each test case
-		userEntity = new UserEntity();
-		userEntity.setUserId(userId);
-		userEntity.setFirstName("Richard");
-		userEntity.setLastName("Enu");
-		userEntity.setEmail("enazubike88@gmail.com");
-		userEntity.setAddresses(getAddressEntities());
-		userEntity.setEncryptedPassword(encryptedPassword);
-		userEntity.setEmailVerificationStatus(Boolean.TRUE);
-		userRepository.save(userEntity);
-
-		userEntity2 = new UserEntity();
-		userEntity2.setUserId(userId + "x");
-		userEntity2.setFirstName("Kingsley");
-		userEntity2.setLastName("Sammuel");
-		userEntity2.setEmail("kingsley@gmail.con");
-		userEntity2.setAddresses(getAddressEntities());
-		userEntity2.setEncryptedPassword(encryptedPassword);
-		userEntity2.setEmailVerificationStatus(Boolean.TRUE);
-		userRepository.save(userEntity2);
+		if (!recordsCreated)
+			createRecords();
 	}
 
 	@Test
@@ -67,6 +50,41 @@ class UserRepositoryTest {
 		assertNotNull(userEntities);
 		assertTrue(userEntities.size() == 1);
 
+	}
+
+	@Test
+
+	void findUserByFirstName() {
+		List<UserEntity> userEntities = userRepository.findUserByFirstName("Richard");
+		assertNotNull(userEntities);
+		assertTrue(userEntities.size() == 1);
+		assertEquals("Richard", userEntities.get(0).getFirstName());
+	}
+
+	public void createRecords() {
+		// Create an instance of UserEntity Stub for each test case
+		userEntity = new UserEntity();
+		userEntity.setId(1L);
+		userEntity.setUserId(userId);
+		userEntity.setFirstName("Richard");
+		userEntity.setLastName("Enu");
+		userEntity.setEmail("enazubike88@gmail.com");
+		userEntity.setAddresses(getAddressEntities());
+		userEntity.setEncryptedPassword(encryptedPassword);
+		userEntity.setEmailVerificationStatus(Boolean.TRUE);
+		userRepository.save(userEntity);
+
+		userEntity2 = new UserEntity();
+		userEntity.setId(2L);
+		userEntity2.setUserId(userId);
+		userEntity2.setFirstName("Kingsley");
+		userEntity2.setLastName("Sammuel");
+		userEntity2.setEmail("kingsley@gmail.con");
+		userEntity2.setAddresses(getAddressEntities());
+		userEntity2.setEncryptedPassword(encryptedPassword);
+		userEntity2.setEmailVerificationStatus(Boolean.TRUE);
+		userRepository.save(userEntity2);
+		recordsCreated = true;
 	}
 
 	private List<AddressDto> getAddressDto() {

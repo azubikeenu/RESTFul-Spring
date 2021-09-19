@@ -1,5 +1,7 @@
 package com.azubike.ellpisis.app.ws.repo;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +22,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
 	@Query(value = "select * from USERS U  where U.EMAIL_VERIFICATION_STATUS = true ", countQuery = "select count(*) from USERS U  where U.EMAIL_VERIFICATION_STATUS = true ", nativeQuery = true)
 	Page<UserEntity> findVerifiedUsers(Pageable pageableRequest);
+
+	@Query(value = "select * from Users u where u.first_name = ?1", nativeQuery = true)
+
+	List<UserEntity> findUserByFirstName(String firstName);
 
 }
