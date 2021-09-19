@@ -39,8 +39,10 @@ import com.azubike.ellpisis.app.ws.ui.model.response.RequestOperationName;
 import com.azubike.ellpisis.app.ws.ui.model.response.RequestOperationStatus;
 import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
-//http://localhost:8080/users
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 
+//http://localhost:8080/users
 @RestController
 @RequestMapping("/users")
 //@CrossOrigin(origins = "*")
@@ -51,6 +53,8 @@ public class UserController {
 	@Autowired
 	private AddressService addressService;
 
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> getUser(@PathVariable String id) {
 		UserDto user = userService.getUserById(id);
@@ -70,6 +74,8 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(returnedValue);
 	}
 
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
@@ -87,6 +93,8 @@ public class UserController {
 
 	}
 
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public OperationStatusModel deleteUser(@PathVariable String id) {
 		OperationStatusModel returnedValue = new OperationStatusModel();
@@ -96,6 +104,8 @@ public class UserController {
 		return returnedValue;
 	}
 
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit) {
@@ -110,6 +120,8 @@ public class UserController {
 	}
 
 	// http://localhost:8080/mobile-app-ws/users/:id/addresses
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
 	public ResponseEntity<List<AddressRest>> getUserAddresses(@PathVariable String id) {
@@ -131,6 +143,8 @@ public class UserController {
 	}
 
 	// http://localhost:8080/mobile-app-ws/users/:id/addresses/:addressId
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
 	public ResponseEntity<AddressRest> getUserAddress(@PathVariable String addressId, @PathVariable String userId) {

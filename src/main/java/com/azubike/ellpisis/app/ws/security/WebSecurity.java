@@ -40,9 +40,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, SecurityConstants.EMAIL_VERIFICATION_URL).permitAll()
 				.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL).permitAll()
 				.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL).permitAll()
-				.antMatchers(SecurityConstants.H2_CONSOLE).permitAll().anyRequest().authenticated().and()
-				.addFilter(getAuthenticationFilter()).addFilter(new AuthorizationFilter(authenticationManager()))
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.antMatchers(SecurityConstants.H2_CONSOLE).permitAll()
+				.antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+				.anyRequest().authenticated().and().addFilter(getAuthenticationFilter())
+				.addFilter(new AuthorizationFilter(authenticationManager())).sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		// allow H2 console to display in frames of browsers
 		http.headers().frameOptions().disable();
