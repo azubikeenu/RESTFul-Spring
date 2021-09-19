@@ -30,4 +30,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	@Query(value = "select * from Users u where u.last_name= :lastName", nativeQuery = true)
 	List<UserEntity> findUserByLastName(@Param("lastName") String lastName);
 
+	@Query(value = "select * from Users u where first_name LIKE %:keyword% or last_name LIKE %:keyword%", nativeQuery = true)
+	List<UserEntity> findUserByKeyWord(@Param("keyword") String keyword);
+
+	@Query(value = "select u.first_name,u.last_name  from Users u where first_name LIKE %:keyword% or last_name LIKE %:keyword%", nativeQuery = true)
+	List<Object[]> firstUserFirstNameAndLastNameByKeyWord(@Param("keyword") String keyword);
+
 }

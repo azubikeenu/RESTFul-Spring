@@ -68,6 +68,27 @@ class UserRepositoryTest {
 		assertEquals("Enu", userEntities.get(0).getLastName());
 	}
 
+	@Test
+	void findByKeyWord() {
+		List<UserEntity> userEntities = userRepository.findUserByKeyWord("Enu");
+		assertNotNull(userEntities);
+		assertTrue(userEntities.size() == 1);
+		assertTrue(userEntities.get(0).getLastName().contains("Enu"));
+	}
+
+	@Test
+	void firstUserFirstNameAndLastNameByKeyWord() {
+		List<Object[]> users = userRepository.firstUserFirstNameAndLastNameByKeyWord("Enu");
+		assertNotNull(users);
+		String firstName = users.get(0)[0].toString();
+		String lastName = users.get(0)[1].toString();
+		assertNotNull(firstName);
+		assertNotNull(lastName);
+		assertEquals("Richard", firstName);
+		assertEquals("Enu", lastName);
+
+	}
+
 	public void createRecords() {
 		// Create an instance of UserEntity Stub for each test case
 		userEntity = new UserEntity();
