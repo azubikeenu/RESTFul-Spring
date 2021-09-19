@@ -43,12 +43,12 @@ class UserRepositoryTest {
 
 	@Test
 	void testGetVerifiedUsers() {
-		Pageable pageableRequest = PageRequest.of(1, 1);
+		Pageable pageableRequest = PageRequest.of(0, 2);
 		Page<UserEntity> pages = userRepository.findVerifiedUsers(pageableRequest);
 		assertNotNull(pages);
 		List<UserEntity> userEntities = pages.getContent();
 		assertNotNull(userEntities);
-		assertTrue(userEntities.size() == 1);
+		assertTrue(userEntities.size() >= 1);
 
 	}
 
@@ -89,6 +89,40 @@ class UserRepositoryTest {
 
 	}
 
+	@Test
+	void updateUserEmailVerificationStatus() {
+		boolean emailVerificationStatus = false;
+		userRepository.updateUserEmailVerificationStatus(emailVerificationStatus, userId);
+		UserEntity storedDetails = userRepository.findByUserId(userId);
+		assertTrue(storedDetails.getEmailVerificationStatus() == emailVerificationStatus);
+	}
+
+	@Test
+	void findUserEntityByUserId() {
+		UserEntity user = userRepository.findUserEntityByUserId(userId);
+		assertNotNull(user);
+	}
+
+	@Test
+	void getUserEntityFullName() {
+		List<Object[]> users = userRepository.getUserEntityFullName(userId);
+		String firstName = users.get(0)[0].toString();
+		String lastName = users.get(0)[1].toString();
+		assertNotNull(firstName);
+		assertNotNull(lastName);
+		assertEquals("Richard", firstName);
+		assertEquals("Enu", lastName);
+
+	}
+
+	@Test
+	void updateEmailVerificationEntity() {
+		boolean emailVerificationStatus = false;
+		userRepository.updateEmailVerificationEntity(emailVerificationStatus, userId);
+		UserEntity storedDetails = userRepository.findByUserId(userId);
+		assertTrue(storedDetails.getEmailVerificationStatus() == emailVerificationStatus);
+	}
+
 	public void createRecords() {
 		// Create an instance of UserEntity Stub for each test case
 		userEntity = new UserEntity();
@@ -104,7 +138,7 @@ class UserRepositoryTest {
 
 		userEntity2 = new UserEntity();
 		userEntity.setId(2L);
-		userEntity2.setUserId(userId);
+		userEntity2.setUserId(userId + "x");
 		userEntity2.setFirstName("Kingsley");
 		userEntity2.setLastName("Sammuel");
 		userEntity2.setEmail("kingsley@gmail.con");
