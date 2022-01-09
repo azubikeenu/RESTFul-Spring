@@ -41,6 +41,7 @@ import com.azubike.ellpisis.app.ws.ui.model.response.UserRest;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 //http://localhost:8080/users
 @RestController
@@ -53,6 +54,7 @@ public class UserController {
 	@Autowired
 	private AddressService addressService;
 
+	@ApiOperation(value = "${userController.getUserApiOperation.value}", notes = "${userController.getUserApiOperation.notes}")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "${userController.authorizationHeader.description}", paramType = "header") })
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
