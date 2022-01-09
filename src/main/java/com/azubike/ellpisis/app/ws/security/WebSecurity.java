@@ -52,6 +52,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	}
 
 	public AuthenticationFilter getAuthenticationFilter() throws Exception {
+		// the authenticationManager() is a method gotten from the
+		// WebConfigurerAdapterClass
 		final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
 		// custom path for authentication
 		filter.setFilterProcessesUrl("/users/login");
